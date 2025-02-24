@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const categoriesRoutes = require('./routes/categories');
+const Routes = require('./routes/bookrouter.js');
 require('dotenv').config();
 
 const app = express();
@@ -10,7 +10,8 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 
 // Routes
-app.use('/kategori', categoriesRoutes);
+app.use('/kategori', Routes);
+app.use('/', Routes);
 
 // Start Server
 app.listen(port, () => {
