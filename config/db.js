@@ -1,14 +1,14 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 
-const dbPool = mysql.createConnection({
+const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'book'
+    database: 'users'
 });
 
-dbPool.connect((err) => {
+db.connect((err) => {
   if (err) {
     console.error('Database connection failed:', err.message);
     return;
@@ -16,4 +16,4 @@ dbPool.connect((err) => {
   console.log('Connected to the database.');
 });
 
-module.exports = dbPool;
+module.exports = db;
