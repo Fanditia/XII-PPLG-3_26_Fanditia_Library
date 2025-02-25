@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const Routes = require('./routes/userRoutes.js');
+const Routes = require('./routes/loans.js');
 require('dotenv').config();
 
 const app = express();
@@ -11,6 +11,7 @@ app.use(bodyParser.json());
 
 // Routes
 app.use('/kategori', Routes);
+app.use('/loans', Routes);
 app.use('/', Routes);
 
 // Start Server
