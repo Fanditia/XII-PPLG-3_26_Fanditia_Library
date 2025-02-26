@@ -10,7 +10,7 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 
 // Routes
-app.use('/kategori', categoriesRoutes);
+app.use('/', categoriesRoutes);
 
 // Start Server
 app.listen(port, () => {
