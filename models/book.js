@@ -2,22 +2,33 @@ const db = require ('../config/db.js')
 
 const getindex = async () => {
     try {
-        const SQLQuery = 'SELECT * FROM book';
-        const [rows] = await db.promise().execute(SQLQuery); // Gunakan `.promise()`
-        return rows; // Pastikan return berupa array
+        const SQLQuery = `
+            SELECT book.id, book.title, book.writer, book.publisher, book.year, 
+                   users.name AS user_name, categories.name AS category_name
+            FROM book
+            JOIN users ON book.user_id = users.id
+            JOIN categories ON book.category_id = categories.id;
+        `;
+        const [rows] = await db.promise().execute(SQLQuery);
+        return rows;
     } catch (error) {
         console.error("Database Error:", error);
         throw error;
     }
 };
 
-
-const getByid = async (id) => { // ✅ Pastikan id masuk sebagai parameter
-    console.log("ID yang dikirim ke query:", id); // Debugging
-
-    const SQLQuery = 'SELECT * FROM book WHERE id = ?';  
-    return db.execute(SQLQuery, [id]); // ✅ Gunakan parameterized query
+const getByid = async (id) => {
+    const SQLQuery = `
+        SELECT book.id, book.title, book.writer, book.publisher, book.year, 
+               users.name AS user_name, categories.name AS category_name
+        FROM book
+        JOIN users ON book.user_id = users.id
+        JOIN categories ON book.category_id = categories.id
+        WHERE book.id = ?;
+    `;
+    return db.promise().execute(SQLQuery, [id]);
 };
+
 
 const createnew = async (body) => {
     const SQLQuery = `INSERT INTO book (title, writer, publisher, year, user_id, category_id) 

@@ -4,7 +4,7 @@ const getindex = async (req, res) => {
     try {
         const data = await Bookmodel.getindex();
         res.json({
-            message: 'GET all users success',
+            message: 'GET all books success',
             data: data
         });
     } catch (error) {
@@ -15,29 +15,57 @@ const getindex = async (req, res) => {
     }
 };
 
-const createnew = async (req, res) => {
-    const { body } = req;
+const getByid = async (req, res) => {
+    const { id } = req.params; // Ambil ID dari URL parameter
 
-    // Cek apakah semua data wajib ada
-    if (!body.title || !body.writer || !body.publisher || !body.year || !body.user_id || !body.category_id) {
-        return res.status(400).json({
-            message: "Bad Request: Semua data harus diisi!"
-        });
-    }
+    // Debugging untuk cek apakah ID terbaca
+    console.log("ID dari req.params:", id);
 
     try {
-        const result = await Bookmodel.createnew(body); 
-        res.status(201).json({
-            message: 'CREATE new book success',
-            data: { id: result.insertId, ...body }
+        if (!id) {
+            return res.status(400).json({ message: "ID tidak ditemukan dalam request" });
+        }
+
+        const [data] = await Bookmodel.getByid(id); // Panggil model dengan nama yang sesuai
+
+        if (data.length === 0) {
+            return res.status(404).json({ message: 'Book not found' });
+        }
+
+        res.json({
+            message: 'GET book by ID success',
+            data: data[0]
         });
+
     } catch (error) {
+        console.error("Error saat getByid:", error);
         res.status(500).json({
             message: 'Server Error',
-            serverMessage: error.message,
+            serverMessage: error.message
         });
     }
+}
+
+const createnew = async (body) => {
+    // Cek apakah user_id dan category_id valid
+    const checkUser = await db.promise().execute(`SELECT id FROM users WHERE id = ?`, [body.user_id]);
+    const checkCategory = await db.promise().execute(`SELECT id FROM categories WHERE id = ?`, [body.category_id]);
+
+    if (checkUser[0].length === 0) {
+        throw new Error("User ID tidak ditemukan");
+    }
+    if (checkCategory[0].length === 0) {
+        throw new Error("Category ID tidak ditemukan");
+    }
+
+    const SQLQuery = `INSERT INTO book (title, writer, publisher, year, user_id, category_id) 
+                      VALUES (?, ?, ?, ?, ?, ?)`;
+    const [result] = await db.promise().execute(SQLQuery, [
+        body.title, body.writer, body.publisher, body.year, body.user_id, body.category_id
+    ]);
+    return result;
 };
+
 
 
 const updateBook = async (req, res) => {
@@ -96,38 +124,6 @@ const deleteBook = async (req, res) => {
     }
 };
 
-
- 
-const getByid = async (req, res) => {
-    const { id } = req.params; // Ambil ID dari URL parameter
-
-    // Debugging untuk cek apakah ID terbaca
-    console.log("ID dari req.params:", id);
-
-    try {
-        if (!id) {
-            return res.status(400).json({ message: "ID tidak ditemukan dalam request" });
-        }
-
-        const [data] = await Bookmodel.getByid(id); // Panggil model dengan nama yang sesuai
-
-        if (data.length === 0) {
-            return res.status(404).json({ message: 'Book not found' });
-        }
-
-        res.json({
-            message: 'GET book by ID success',
-            data: data[0]
-        });
-
-    } catch (error) {
-        console.error("Error saat getByid:", error);
-        res.status(500).json({
-            message: 'Server Error',
-            serverMessage: error.message
-        });
-    }
-}
 
 
 
